@@ -54,6 +54,15 @@ const NavigationBar = () => {
             navigate("/post");
           }}
         >
+          <Icon.PlusSquare color="#0056b3" size={25} />
+          <p>Create</p>
+        </div>
+        <div
+          className="itemContainer"
+          onClick={() => {
+            navigate("/myJobs");
+          }}
+        >
           <Icon.Briefcase color="#0056b3" size={25} />
           <p>Jobs</p>
         </div>

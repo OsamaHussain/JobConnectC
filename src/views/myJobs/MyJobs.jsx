@@ -1,27 +1,34 @@
 import React, { useEffect, useState } from "react";
+import jwtDecode from "jwt-decode";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import NavigationBar from "../../components/NavigationBar/NavigationBar";
-import "./Home.css";
+import "./myJobs.css";
 import * as Icon from "react-feather";
 
-const Home = () => {
+const MyJobs = () => {
   const navigate = useNavigate();
+  const [userInfo, setUserInfo] = useState({});
+  const [userId, setUserId] = useState({});
   const [data, setData] = useState([]);
   const [loggedIn, setLoggedIn] = useState(false);
   const [hidden, setHidden] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const obj = JSON.parse(localStorage.getItem("userInfo"));
     if (!token) {
       navigate("/signup");
     } else {
       setHidden(false);
+      setUserInfo(obj);
     }
 
     (async () => {
       try {
-        const res = await axios.post("http://localhost:5000/api/post/GetPosts");
+        const res = await axios.post(
+          `http://localhost:5000/api/post/GetPost/${obj._id}`
+        );
         setData(res.data);
       } catch (e) {
         console.log(e.message);
@@ -80,6 +87,18 @@ const Home = () => {
     <div className={hidden ? "hidden" : "visible"}>
       <NavigationBar />
       <div className="home--container">
+        {data.length == 0 && (
+          <h2
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: 300,
+            }}
+          >
+            You Hav Not Posted any Job Right Now
+          </h2>
+        )}
         {data.map((item, index) => (
           <div className="border home--inner--container" key={index}>
             <li
@@ -149,7 +168,9 @@ const Home = () => {
                 <Icon.TrendingUp />
                 <li
                   className="editable"
-                  contenteditable="false"
+                  contenteditable={
+                    userInfo._id == item.userId ? "true" : "false"
+                  }
                   data-id={`${item._id}-salary`}
                 >
                   {item.salary}
@@ -159,7 +180,9 @@ const Home = () => {
                 <Icon.Globe />
                 <li
                   className="editable"
-                  contenteditable="false"
+                  contenteditable={
+                    userInfo._id == item.userId ? "true" : "false"
+                  }
                   data-id={`${item._id}-location`}
                 >
                   {item.location}
@@ -169,7 +192,9 @@ const Home = () => {
                 <Icon.Server />
                 <li
                   className="editable"
-                  contenteditable="false"
+                  contenteditable={
+                    userInfo._id == item.userId ? "true" : "false"
+                  }
                   data-id={`${item._id}-jobtype`}
                 >
                   {item.jobtype}
@@ -179,7 +204,9 @@ const Home = () => {
                 <Icon.Award />
                 <li
                   className="editable"
-                  contenteditable="false"
+                  contenteditable={
+                    userInfo._id == item.userId ? "true" : "false"
+                  }
                   data-id={`${item._id}-experience`}
                 >
                   {item.experience}
@@ -187,15 +214,8 @@ const Home = () => {
               </div>
             </div>
 
-            {/* View Button */}
-            <div className="d-flex">
-              <button className="blue" style={{backgroundColor:'#603F83FF'}} onClick={()=>{
-                handleView(item);
-              }}>View</button>
-            </div>
-
             {/* Edit and Delete Button */}
-            {false && (
+            {userInfo._id == item.userId && (
               <div className="d-flex">
                 <button
                   className="blue"
@@ -215,6 +235,18 @@ const Home = () => {
                 </button>
               </div>
             )}
+            {/* View Button */}
+            <div className="d-flex">
+              <button
+                className="blue"
+                style={{ backgroundColor: "#603F83FF" }}
+                onClick={() => {
+                  handleView(item);
+                }}
+              >
+                View
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -222,4 +254,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default MyJobs;
